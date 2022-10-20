@@ -24,20 +24,27 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get('/api/:date',(req,res)=>{
-  var {date} = req.params;
-  if(date.length == 0 || /\s/.test(date))
-  {
-    var dateObj = new Date();
-    res.json({unix:dateObj.getTime(),utc:dateObj.toUTCString()});
-  }else
-  {
-    var dateObj = new Date(date);
-    if(!isNaN(dateObj.getTime())) res.json({unix:dateObj.getTime(),utc:dateObj.toUTCString()});
-    else res.json({error: 'Invalid date'});
-  }
+app.get('/api/',(req,res)=>{
+  var dateObj = new Date();
+  res.json({unix:dateObj.getTime(),utc:dateObj.toUTCString()});
 });
 
+app.get('/api/:date',(req,res)=>{
+  var {date} = req.params;
+  var dateObj = new Date(date);
+  if(!isNaN(dateObj.getTime())) res.json({unix:dateObj.getTime(),utc:dateObj.toUTCString()});
+  else if(/\s/.test(date))
+  {
+    dateObj = new Date();
+    res.json({unix:dateObj.getTime(),utc:dateObj.toUTCString()});
+  }
+  else if(/^[0-9]*$/.test(date))
+  {
+    dateObj = new Date(parseInt(date));
+    res.json({unix:dateObj.getTime(),utc:dateObj.toUTCString()});
+  }
+  else res.json({error:'Invalid date'});
+});
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT|3000, function () {
